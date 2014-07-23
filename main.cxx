@@ -1,64 +1,39 @@
-#include <cstdio>
-#include <fstream>
+/*
+Copyright (c) 2014, Vlad Mesco
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 #include <iostream>
-#include <algorithm>
-#include <ctime>
 #include "core.hxx"
 #include "drawing.hxx"
 
-static bool dragging = false;
-static bool panningUp = false;
-static bool panning = false;
-static int lastX = 0, lastY = 0;
 static bool moving = false, moving2 = false;
 static float dlta = 0.1, dlta2 = 0.f;
 
+static float jx = 0, jy = 0, jz = 0;
+
 float rx = 0, ry = 0;
 Point3D ppos(0, 0.5, -2);
-
-static Beam::vector beams;
-static Sensor::vector sensors;
-static Button::vector buttons;
-static AnimationData ad;
-
-static int animFrame = 0;
-static bool animating = false;
-static bool showRange = false;
-
-
-static bool clickEnabled = false;
-
-
-struct ButtonDrawer
-{
-    Drawing& dwg;
-    ButtonDrawer(Drawing& drawing)
-        : dwg(drawing)
-    {}
-
-    void operator()(Button const& o)
-    {
-        if(o.highlighted) {
-            dwg.SetColor(Drawing::LIME);
-        } else {
-            dwg.SetColor(Drawing::WHITE);
-        }
-
-        Point2D p2(o.extent.x, o.location.y);
-        Point2D p4(o.location.x, o.extent.y);
-
-        dwg.MoveTo(o.location);
-        dwg.LineTo(p2);
-        dwg.LineTo(o.extent);
-        dwg.LineTo(p4);
-        dwg.LineTo(o.location);
-
-        Point2D textLocation(o.location.x + 3, o.extent.y - 3);
-        dwg.MoveTo(textLocation);
-        dwg.SetTextScale(5);
-        dwg.Text(o.text);
-    }
-};
 
 static void drawScene(Drawing& dwg)
 {
@@ -66,6 +41,14 @@ static void drawScene(Drawing& dwg)
         ppos,
         -rx,
         -ry);
+
+    dwg.SetColor(Drawing::WHITE);
+    dwg.SetRotations(jx, jy, jz);
+    dwg.MoveTo(Point3D(0, 1, -5));
+    dwg.WireCube(1);
+    dwg.SetRotations(-jx, -jy, -jz);
+    dwg.SetColor(Drawing::YELLOW);
+    dwg.WireCube(0.5);
 
     dwg.SetColor(Drawing::CYAN);
     dwg.MoveTo(Point3D(-5, 0, 0));
@@ -129,73 +112,20 @@ static void drawScene(Drawing& dwg)
     dwg.TextureQuad(10, 1);
     dwg.SetColor(Drawing::WHITE);
     dwg.WireQuad(10, 1);
-
-
-    // Overlay
-    dwg.SetColor(Drawing::WHITE);
-    dwg.MoveTo(Point2D(10, 950));
-    dwg.SetTextScale(5);
-    dwg.Text("Selecteaza nodul de start:");
-    std::for_each(buttons.begin(), buttons.end(), ButtonDrawer(dwg));
 }
 
 static void onmousedown(int x, int y, int btn)
 {
-    for(Button::vector::iterator i = buttons.begin();
-            i != buttons.end(); ++i)
-    {
-        Button& btn = *i;
-        if(!dragging && !panning && !panningUp
-                && btn.location.x < x && btn.location.y < y
-                && btn.extent.x > x && btn.extent.y > y)
-        {
-            clickEnabled = true;
-            return;
-        }
-    }
-
-    lastX = x;
-    lastY = y;
     if(btn == 1) {
-        dragging = true;
     }
     if(btn == 2) {
-        panningUp = true;
     }
     if(btn == 3) {
-        panning = true;
     }
 }
 
 static void onmouseup(int x, int y, int btn)
 {
-    for(Button::vector::iterator i = buttons.begin();
-            clickEnabled && i != buttons.end();
-            ++i)
-    {
-        Button& btn = *i;
-        if(!dragging && !panning && !panningUp
-                && btn.location.x < x && btn.location.y < y
-                && btn.extent.x > x && btn.extent.y > y)
-        {
-            if(btn.clicked) btn.clicked();
-        }
-    }
-
-    if(clickEnabled) {
-        clickEnabled = false;
-        return;
-    }
-
-    if(btn == 1) {
-        dragging = false;
-    }
-    if(btn == 2) {
-        panningUp = false;
-    }
-    if(btn == 3) {
-        panning = false;
-    }
 }
 
 static void onmousemove(int dx, int dy)
@@ -204,26 +134,6 @@ static void onmousemove(int dx, int dy)
     ry += dy * 0.1;
     if(ry > 90.f) ry = 90.f;
     if(ry < -90.f) ry = -90.f;
-}
-
-static void PrecClicked()
-{
-   
-}
-
-static void UrmClicked()
-{
-
-}
-
-static void sensordeselect(Sensor& s)
-{
-    s.selected = false;
-}
-
-static void AnimClicked()
-{
-   
 }
 
 static void updateScene()
@@ -236,37 +146,13 @@ static void updateScene()
         dir = Drawing::UtilityHelpers::RotateDeltaVector(dir, -rx, -ry);
         ppos = Drawing::UtilityHelpers::Translate(ppos, dir);
     }
-}
 
-static void RangeClicked()
-{
-    showRange = !showRange;
-    if(showRange) printf("showing sensor range as a sphere\n");
-    else printf("showing only connections\n");
-}
-
-static void addButtons()
-{
-    buttons.push_back(Button(
-                Point2D(10, 970),
-                Point2D(60, 990),
-                "Prec",
-                PrecClicked));
-    buttons.push_back(Button(
-                Point2D(110, 970),
-                Point2D(160, 990),
-                "Urm",
-                UrmClicked));
-    buttons.push_back(Button(
-                Point2D(700, 970),
-                Point2D(980, 990),
-                "Porneste/Opreste animatia",
-                AnimClicked));
-    buttons.push_back(Button(
-                Point2D(700, 945),
-                Point2D(980, 965),
-                "Show range",
-                RangeClicked));
+    jx += 5;
+    jy += 3;
+    jz += 2;
+    if(jx > 360) jx -= 360;
+    if(jy > 360) jy -= 360;
+    if(jz > 360) jz -= 360;
 }
 
 static void onkeyup(char key)
@@ -309,9 +195,6 @@ static void onkeydown(char key)
 
 int main(int argc, char* argv[])
 {
-
-    addButtons();
-
     Drawing::Init(&argc, argv);
     Drawing::SetOnMouseDown(onmousedown);
     Drawing::SetOnMouseUp(onmouseup);

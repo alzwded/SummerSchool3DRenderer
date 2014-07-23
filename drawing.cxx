@@ -1,3 +1,28 @@
+/*
+Copyright (c) 2014, Vlad Mesco
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 #include "drawing.hxx"
 #include "bitmap.h"
 #include <GL/freeglut.h>
@@ -73,12 +98,7 @@ static Point3D rotateDirectionVector(Point3D dP, float rx, float ry)
     GLfloat d[4] = { dP.x , dP.y , dP.z , 1.f };
     GLfloat rez[4] = { 0.f, 0.f, 0.f, 0.f };
     multMat4Vec4(mat, d, rez);
-
-    // store results
-    //dx = rez[0];
-    //dy = rez[1];
-    //dz = rez[2];
-
+    
     // restore GL_PROJECTION_MATRIX
     glPopMatrix();
 
@@ -95,38 +115,7 @@ static void draw_()
 static void update_(int)
 {
     if(updateFunc_) updateFunc_();
-
-    //rotateDirectionVector();
-
-    //if(fabs(drx) > 1.e-5) {
-    //    rx = rx + drx;
-    //    drx = 0.f;
-    //}
-    //if(fabs(dry) > 1.e-5) {
-    //    if(dry > 0.f) {
-    //        if(ry + dry < 90.f) {
-    //            ry = ry + dry;
-    //        }
-    //    } else {
-    //        if(ry + dry > -90.f) {
-    //            ry = ry + dry;
-    //        }
-    //    }
-    //    dry = 0.f;
-    //}
-    //if(fabs(dx) > 1.e-5) {
-    //    px = px + dx;
-    //    dx = 0.f;
-    //}
-    //if(fabs(dy) > 1.e-5) {
-    //    py = py + dy;
-    //    dy = 0.f;
-    //}
-    //if(fabs(dz) > 1.e-5) {
-    //    pz = pz + dz;
-    //    dz = 0.f;
-    //}
-
+    
     glutPostRedisplay();
     glutTimerFunc(17, update_, 0);
 }
@@ -271,41 +260,15 @@ void Drawing::Loop(
     glutMainLoop();
 }
 
-void Drawing::LookAt(Point3D O, Point3D P)
-{
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    setPerspective();
-
-    // rotate around center point
-    //float x, y, z;
-    //x = +5.f * SIN(-rx) * COS(-ry);
-    //y = +5.f * SIN(-ry);
-    //z = +5.f * COS(-rx) * COS(-ry);
-    //gluLookAt(
-    //        -px + x, py + y, pz + z,
-    //        -px, py, pz,
-    //        0, 1, 0);
-
-    gluLookAt(
-        -P.x, P.y, P.z,
-        -O.x, O.y, O.z,
-        0, 1, 0);
-
-	glMatrixMode(GL_MODELVIEW); 
-	glLoadIdentity(); 
-	glEnable(GL_DEPTH_TEST);
-}
-
 std::vector<unsigned int> Drawing::textures_;
 
 Drawing::Drawing(int window)
-    : currentPoint_(0.f, 0.f, 0.f)
-    , color_(YELLOW)
-    , window_(window)
-    , textScale(0.9f)
-    , tex_(-1)
+    : window_(window)
+    , currentPoint_(0.f, 0.f, 0.f)
     , r_(0, 0, 0)
+    , tex_(-1)
+    , color_(YELLOW)
+    , textScale_(0.9f)
     , texScale_(0, 0)
 {
     // setup
@@ -316,16 +279,6 @@ Drawing::Drawing(int window)
     glLoadIdentity();
     setPerspective();
 
-    // rotate around center point
-    //float x, y, z;
-    //x = +5.f * SIN(-rx) * COS(-ry);
-    //y = +5.f * SIN(-ry);
-    //z = +5.f * COS(-rx) * COS(-ry);
-    //gluLookAt(
-    //        -px + x, py + y, pz + z,
-    //        -px, py, pz,
-    //        0, 1, 0);
-
 	glMatrixMode(GL_MODELVIEW); 
 	glLoadIdentity(); 
 	glEnable(GL_DEPTH_TEST);
@@ -335,7 +288,6 @@ Drawing::Drawing(int window)
 
 Drawing::~Drawing()
 {
-	//glPopMatrix();
 	glutSwapBuffers(); 
 }
 
@@ -409,7 +361,7 @@ void Drawing::LineTo(Point2D p)
 
 void Drawing::SetTextScale(float s)
 {
-    textScale = s / 100.f / 5.f;
+    textScale_ = s / 100.f / 5.f;
 }
 
 void Drawing::Text(std::string const& s)
@@ -419,7 +371,7 @@ void Drawing::Text(std::string const& s)
     glPushMatrix();
     glLineWidth(0.5);
     glTranslatef(currentPoint_.x, currentPoint_.y, 0.f);
-	glScalef(textScale, -textScale, 0.0f);
+	glScalef(textScale_, -textScale_, 0.0f);
 	for(int i = 0; i < s.size(); ++i) {
 		glutStrokeCharacter(GLUT_STROKE_MONO_ROMAN, s[i]);
 	}
@@ -432,6 +384,9 @@ void Drawing::WireCube(float l)
 {
     glPushMatrix();
     glTranslatef(currentPoint_.x, currentPoint_.y, -currentPoint_.z);
+    glRotatef(r_.x, 1, 0, 0);
+    glRotatef(r_.y, 0, 1, 0);
+    glRotatef(r_.z, 0, 0, 1);
     glLineWidth(2);
     glutWireCube(l);
     glPopMatrix();
@@ -628,17 +583,17 @@ void Drawing::SetTexture(int i)
     }
 }
 
-int Drawing::LoadBitmapTexture(char const* path, int chromaKey)
+int Drawing::LoadBitmapTexture(std::string const& path, int chromaKey)
 {
     CBitmap bmp;
-    if(!bmp.Load(path)) {
+    if(!bmp.Load(path.c_str())) {
         std::cerr << "ERROR: failed to load " << path << std::endl;
     }
     uint8_t* buf(NULL);
     size_t nBuf;
-    std::cerr << bmp.GetBits(buf, nBuf, /*R*/0x000000FF, /*G*/0x0000FF00, /*B*/0x00FF0000, /*A*/0xFF000000);
+    bmp.GetBits(buf, nBuf, /*R*/0x000000FF, /*G*/0x0000FF00, /*B*/0x00FF0000, /*A*/0xFF000000);
     buf = (uint8_t*)malloc(nBuf * sizeof(uint8_t));
-    std::cerr << bmp.GetBits(buf, nBuf, /*R*/0x000000FF, /*G*/0x0000FF00, /*B*/0x00FF0000, /*A*/0xFF000000);
+    bmp.GetBits(buf, nBuf, /*R*/0x000000FF, /*G*/0x0000FF00, /*B*/0x00FF0000, /*A*/0xFF000000);
 
     int r = 0, g = 0, b = 0;
     if(chromaKey >= 0) {
