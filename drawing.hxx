@@ -68,6 +68,7 @@ public:
         static Point3D Translate(Point3D P, Point3D dP);
         static Point3D Rotate(Point3D P, Point3D O, float rx, float ry);
         static Point3D RotateDeltaVector(Point3D dP, float rx, float ry);
+        static Point3D normalizeVector(Point3D P);
     };
 
 private:

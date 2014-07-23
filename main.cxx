@@ -143,6 +143,10 @@ static void updateScene()
 
     if(moving || moving2) {
         Point3D dir(dlta2, 0, dlta);
+        dir = Drawing::UtilityHelpers::normalizeVector(dir);
+        dir.x /= 10.f;
+        dir.y /= 10.f;
+        dir.z /= 10.f;
         dir = Drawing::UtilityHelpers::RotateDeltaVector(dir, -rx, -ry);
         ppos = Drawing::UtilityHelpers::Translate(ppos, dir);
     }

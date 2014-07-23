@@ -401,7 +401,7 @@ void Drawing::WireSphere(float r)
     glPopMatrix();
 }
 
-static Point3D normalizeVector(Point3D P)
+Point3D Drawing::UtilityHelpers::normalizeVector(Point3D P)
 {
 	float l = sqrtf(P.x * P.x + P.y * P.y + P.z * P.z);
 	if(l > -1.0e-5 && l < 1.0e-5) return P;
