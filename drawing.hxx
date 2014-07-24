@@ -81,10 +81,11 @@ private:
     Color color_;
     float textScale_;
     Point2D texScale_;
-
-public:
+    
+    static void draw_();
     Drawing(int window = 1);
     ~Drawing();
+public:
     void MoveCamera(Point3D O, float rx, float ry);
     
     void MoveTo(Point3D);

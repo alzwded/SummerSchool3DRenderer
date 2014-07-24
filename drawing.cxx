@@ -65,7 +65,6 @@ static float dotProductVec4(GLfloat* v1, GLfloat* v2)
     return ret;
 }
 
-
 static void setPerspective()
 {
 	gluPerspective(72.3, (double)windowW / (double)windowH, 0.1, 30.0); 
@@ -106,7 +105,7 @@ static Point3D rotateDirectionVector(Point3D dP, float rx, float ry)
     return Point3D(rez[0], rez[1], rez[2]);
 }
 
-static void draw_()
+void Drawing::draw_()
 {
     Drawing dwg(window);
     if(drawFunc_) drawFunc_(dwg);
@@ -208,7 +207,6 @@ static void handleMouse(int button, int state, int X, int Y)
     }
 }
 
-void handleMouseMotion(int, int);
 static void resetPointer() {
     glutWarpPointer(windowW/2, windowH/2);
 }
@@ -396,6 +394,8 @@ void Drawing::WireSphere(float r)
 {
     glPushMatrix();
     glTranslatef(currentPoint_.x, currentPoint_.y, -currentPoint_.z);
+    glRotatef(r_.x, 1, 0, 0);
+    glRotatef(r_.y, 0, 1, 0);
     glLineWidth(0.2);
     glutWireSphere(r, 10, 10);
     glPopMatrix();
@@ -616,7 +616,7 @@ int Drawing::LoadBitmapTexture(std::string const& path, int chromaKey)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);//GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bmp.GetWidth(), bmp.GetHeight(),
         0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
