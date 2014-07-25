@@ -89,7 +89,7 @@ private:
     Drawing(int window = 1);
     ~Drawing();
 public:
-    void MoveCamera(Point3D O, float rx, float ry);
+    void MoveCamera(Point3D O, float ry, float rx);
     
     void MoveTo(Point3D);
     void LineTo(Point3D);

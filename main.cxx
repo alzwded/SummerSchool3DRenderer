@@ -39,8 +39,8 @@ static void drawScene(Drawing& dwg)
 {
     dwg.MoveCamera(
         ppos,
-        -rx,
-        -ry);
+        -ry,
+        -rx);
 
     dwg.SetColor(Drawing::WHITE);
     dwg.SetRotations(jx, jy, jz);
@@ -85,7 +85,6 @@ static void drawScene(Drawing& dwg)
     dwg.SetTexture(1);
     dwg.SetTextureScale(0, 0);
     dwg.SetRotations(0, 90, 90);
-    //dwg.SetRotations(ry, rx, 0);
     dwg.TextureQuad(10, 5);
 
     dwg.SetTexture(0);
@@ -126,7 +125,7 @@ static void drawScene(Drawing& dwg)
     // cylindrical billboard
     dwg.MoveTo(Point3D(-10, 1, 3));
     dwg.SetTexture(0);
-    dwg.SetRotations(90, 0, -rx);
+    dwg.SetRotations(90, 0, -ry);
     dwg.TextureQuad(1, 1);
 
     // in case texture's missing
@@ -151,10 +150,10 @@ static void onmouseup(int x, int y, int btn)
 
 static void onmousemove(int dx, int dy)
 {
-    rx += dx * 0.1;
-    ry += dy * 0.1;
-    if(ry > 90.f) ry = 90.f;
-    if(ry < -90.f) ry = -90.f;
+    ry += dx * 0.1;
+    rx += dy * 0.1;
+    if(rx > 90.f) rx = 90.f;
+    if(rx < -90.f) rx = -90.f;
 }
 
 static void updateScene()
@@ -168,7 +167,7 @@ static void updateScene()
         dir.x /= 10.f;
         dir.y /= 10.f;
         dir.z /= 10.f;
-        dir = Drawing::UtilityHelpers::RotateDeltaVector(dir, -rx, -ry);
+        dir = Drawing::UtilityHelpers::RotateDeltaVector(dir, -ry, -rx);
         ppos = Drawing::UtilityHelpers::Translate(ppos, dir);
     }
 
