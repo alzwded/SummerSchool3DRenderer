@@ -83,7 +83,7 @@ private:
     Color color_;
     float textScale_;
     Point2D texScale_;
-    float rrx_;
+    Point2D rr_;
     
     static void draw_();
     Drawing(int window = 1);

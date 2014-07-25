@@ -113,6 +113,7 @@ static void drawScene(Drawing& dwg)
     dwg.SetColor(Drawing::WHITE);
     dwg.WireQuad(10, 1);
 
+    // camera facing sprites
     dwg.MoveTo(Point3D(-10, 1, -1));
     dwg.SetTextureScale(0, 0);
     dwg.SetTexture(0);
@@ -122,6 +123,13 @@ static void drawScene(Drawing& dwg)
     dwg.SetTexture(1);
     dwg.SpriteQuad(1, 1);
 
+    // cylindrical billboard
+    dwg.MoveTo(Point3D(-10, 1, 3));
+    dwg.SetTexture(0);
+    dwg.SetRotations(90, 0, -rx);
+    dwg.TextureQuad(1, 1);
+
+    // in case texture's missing
     dwg.MoveTo(Point3D(-10, 1, -5));
     dwg.SetTexture(-1);
     dwg.SpriteQuad(1, 2);
