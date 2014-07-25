@@ -112,6 +112,19 @@ static void drawScene(Drawing& dwg)
     dwg.TextureQuad(10, 1);
     dwg.SetColor(Drawing::WHITE);
     dwg.WireQuad(10, 1);
+
+    dwg.MoveTo(Point3D(-10, 1, -1));
+    dwg.SetTextureScale(0, 0);
+    dwg.SetTexture(0);
+    dwg.SpriteQuad(1, 1);
+    
+    dwg.MoveTo(Point3D(-10, 1, -3));
+    dwg.SetTexture(1);
+    dwg.SpriteQuad(1, 1);
+
+    dwg.MoveTo(Point3D(-10, 1, -5));
+    dwg.SetTexture(-1);
+    dwg.SpriteQuad(1, 2);
 }
 
 static void onmousedown(int x, int y, int btn)

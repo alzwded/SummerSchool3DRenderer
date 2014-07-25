@@ -44,6 +44,9 @@ static void (*onkeyup)(char) = NULL;
 
 static int windowW = 1000, windowH = 1000;
 
+static float rrx, rry;
+static Point3D ppx;
+
 // multiply a GL 4x4 matrix with a vec4 => vec4
 static void multMat4Vec4(GLfloat* mat, GLfloat* vec, GLfloat* ret)
 {
@@ -56,13 +59,17 @@ static void multMat4Vec4(GLfloat* mat, GLfloat* vec, GLfloat* ret)
     }
 }
 
-static float dotProductVec4(GLfloat* v1, GLfloat* v2)
+Point3D Drawing::UtilityHelpers::crossProduct(Point3D v1, Point3D v2)
 {
-    float ret = 0.f;
-    for(size_t i = 0; i < 4; ++i) {
-        ret += v1[i] * v2[i];
-    }
-    return ret;
+    return Point3D(
+        v1.y * v2.z - v1.z * v2.y,
+        v1.z * v2.x - v1.x * v2.z,
+        v1.x * v2.y - v1.y * v2.x);
+}
+
+float Drawing::UtilityHelpers::dotProduct(Point3D v1, Point3D v2)
+{
+    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
 static void setPerspective()
@@ -443,6 +450,61 @@ void Drawing::WireQuad(float w, float h)
     glPopMatrix();
 }
 
+void Drawing::SpriteQuad(float w, float h)
+{
+    if(tex_ < 0) {
+        Point3D bak = r_;
+        SetRotations(0, rrx, 0);
+        WireSphere((w + h) / 4.f);
+        SetRotations(bak.x, bak.y, bak.z);
+        return;
+    }
+
+    Point3D p1 = Point3D(-w/2.f, 0, -h/2.f);
+    Point3D p2 = Point3D(w/2.f, 0, -h/2.f);
+    Point3D p3 = Point3D(w/2.f, 0, h/2.f);
+    Point3D p4 = Point3D(-w/2.f, 0, h/2.f);
+
+    Point3D OP = currentPoint_;
+    
+    glPushMatrix();
+    
+    glTranslatef(currentPoint_.x, currentPoint_.y, -currentPoint_.z);
+    glRotatef(rrx, 0, 1, 0);
+    glRotatef(90, 1, 0, 0);
+    
+    glAlphaFunc(GL_GREATER, 0.5);
+    glEnable(GL_ALPHA_TEST);
+
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);//GL_DECAL);
+    glBindTexture(GL_TEXTURE_2D, textures_[tex_]);    
+
+    glBegin(GL_QUADS); {
+        float tw = 1.0, th = 1.0;
+        if(texScale_.x > 0.f) {
+            tw = w / texScale_.x;
+        }
+        if(texScale_.y >0.f) {
+            th = h / texScale_.y;
+        }
+        glTexCoord2f(0.0, 0.0); glVertex3f(p1.x, p1.y, p1.z);
+        glTexCoord2f(0.0, tw); glVertex3f(p2.x, p2.y, p2.z);
+        glTexCoord2f(th, tw); glVertex3f(p3.x, p3.y, p3.z);
+        glTexCoord2f(th, 0.0); glVertex3f(p4.x, p4.y, p4.z);
+
+        glTexCoord2f(0.0, 0.0); glVertex3f(p1.x, p1.y, p1.z);
+        glTexCoord2f(th, 0.0); glVertex3f(p4.x, p4.y, p4.z);
+        glTexCoord2f(th, tw); glVertex3f(p3.x, p3.y, p3.z);
+        glTexCoord2f(0.0, tw); glVertex3f(p2.x, p2.y, p2.z);
+    } glEnd();
+    glFlush();
+
+    glDisable(GL_TEXTURE_2D);
+
+    glPopMatrix();
+}
+
 void Drawing::TextureQuad(float w, float h)
 {
     if(tex_ < 0) {
@@ -558,6 +620,10 @@ void Drawing::MoveCamera(Point3D O, float rx, float ry)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     setPerspective();
+
+    rrx = -rx;
+    rry = -ry;
+    ppx = O;
 
     //rotate around center point
     float x, y, z;

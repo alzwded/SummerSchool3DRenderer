@@ -69,6 +69,8 @@ public:
         static Point3D Rotate(Point3D P, Point3D O, float rx, float ry);
         static Point3D RotateDeltaVector(Point3D dP, float rx, float ry);
         static Point3D normalizeVector(Point3D P);
+        static Point3D crossProduct(Point3D v1, Point3D v2);    
+        static float dotProduct(Point3D v1, Point3D v2);
     };
 
 private:
@@ -103,6 +105,7 @@ public:
     // 0, 0 to disable
     void SetTextureScale(float = 0.f, float = 0.f);
     void TextureQuad(float w, float h);
+    void SpriteQuad(float w, float h);
 
     void MoveTo(Point2D);
     void LineTo(Point2D);
