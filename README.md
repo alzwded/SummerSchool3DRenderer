@@ -7,7 +7,7 @@ Building on Windows
 ===================
 
 You will need the following:
-* Visual C++ 10 compiler (Visual Studio 2010)
+* Visual C++ 11 compiler (Visual Studio 2012)
 * freeglut distribution (from over here http://files.transmissionzero.co.uk/software/development/GLUT/older/ , get `freeglut-MSVC-2.8.0-1.mp.zip`)
 
 After you have everything, extract/copy the `freeglut` folder as it is in the project's root directory (`/`, alongside `sample.bmp` and `drawing.cxx`).
