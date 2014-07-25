@@ -57,8 +57,8 @@ static void drawScene(Drawing& dwg)
 {
     dwg.MoveCamera(                         // position the camera
         ppos,
-        -rx,
-        -ry);
+        -ry,
+        -rx);
 
     // draw a cube
     dwg.SetColor(Drawing::WHITE);           // pick the pen color,
@@ -86,6 +86,18 @@ static void drawScene(Drawing& dwg)
     dwg.MoveTo(Point2D(70, 70));
     dwg.SetTextScale(5);
     dwg.Text("Hello World!");               // show up some HUD text
+
+    // camera facing sprite
+    dwg.MoveTo(Point3D(-10, 1, -1));
+    dwg.SetTextureScale(0, 0);
+    dwg.SetTexture(0);
+    dwg.SpriteQuad(1, 1);
+
+    // cylindrical billboard
+    dwg.MoveTo(Point3D(-10, 1, 3));
+    dwg.SetTexture(0);
+    dwg.SetRotations(90, 0, -ry);
+    dwg.TextureQuad(1, 1);
 }
 
 // pre-draw callback
