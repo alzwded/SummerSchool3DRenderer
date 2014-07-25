@@ -44,9 +44,6 @@ static void (*onkeyup)(char) = NULL;
 
 static int windowW = 1000, windowH = 1000;
 
-static float rrx, rry;
-static Point3D ppx;
-
 // multiply a GL 4x4 matrix with a vec4 => vec4
 static void multMat4Vec4(GLfloat* mat, GLfloat* vec, GLfloat* ret)
 {
@@ -275,6 +272,7 @@ Drawing::Drawing(int window)
     , color_(YELLOW)
     , textScale_(0.9f)
     , texScale_(0, 0)
+    , rrx_(0.f)
 {
     // setup
 	glClearColor(.0, .0, 0.f, 0.f);
@@ -454,7 +452,7 @@ void Drawing::SpriteQuad(float w, float h)
 {
     if(tex_ < 0) {
         Point3D bak = r_;
-        SetRotations(0, rrx, 0);
+        SetRotations(0, rrx_, 0);
         WireSphere((w + h) / 4.f);
         SetRotations(bak.x, bak.y, bak.z);
         return;
@@ -470,7 +468,7 @@ void Drawing::SpriteQuad(float w, float h)
     glPushMatrix();
     
     glTranslatef(currentPoint_.x, currentPoint_.y, -currentPoint_.z);
-    glRotatef(rrx, 0, 1, 0);
+    glRotatef(rrx_, 0, 1, 0);
     glRotatef(90, 1, 0, 0);
     
     glAlphaFunc(GL_GREATER, 0.5);
@@ -621,9 +619,7 @@ void Drawing::MoveCamera(Point3D O, float rx, float ry)
     glLoadIdentity();
     setPerspective();
 
-    rrx = -rx;
-    rry = -ry;
-    ppx = O;
+    rrx_ = -rx;
 
     //rotate around center point
     float x, y, z;
