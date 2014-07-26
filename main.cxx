@@ -24,6 +24,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <cstdlib>
+#include <cmath>
+#include <cstdio>
 #include <iostream>
 #include "core.hxx"
 #include "drawing.hxx"
@@ -33,8 +35,49 @@ static float dlta = 0.1, dlta2 = 0.f;
 
 static float jx = 0, jy = 0, jz = 0;
 
-float rx = 0, ry = 0;
-Point3D ppos(0, 0.5, -2);
+static float rx = 0, ry = 0;
+static Point3D ppos(0, 0.5, -2);
+
+static enum {
+    FLY,
+    GRAVITY
+} mvmntType = FLY;
+
+#define ngmap (10)
+#define mgmap (10)
+static float gmap[mgmap][ngmap] = {
+    { -5.f, -5.f, -5.f, -5.f, -5.f, -5.f, -5.f, -5.f, -5.f, -5.f },
+    { -5.f, -6.f, -6.f, -5.f, -5.f, -5.f, -5.f, -5.f, -5.f, -5.f },
+    { -5.f, -6.f, -7.f, -5.f, -5.f, -5.f, -5.f, -5.f, -5.f, -5.f },
+    { -5.f, -5.f, -6.f, -5.f, -5.f, -5.f, -5.f, -5.f, -5.f, -5.f },
+    { -5.f, -5.f, -5.f, -5.f, -5.f, -5.f, -5.f, -5.f, -5.f, -5.f },
+    { -5.f, -5.f, -5.f, -5.f, -5.f, -6.f, -6.f, -6.f, -6.f, -6.f },
+    { -4.f, -4.f, -5.f, -5.f, -6.f, -6.f, -7.f, -7.f, -7.f, -7.f },
+    { -3.f, -4.f, -4.f, -5.f, -6.f, -7.f, -7.f, -8.f, -8.f, -8.f },
+    { -3.f, -3.f, -4.f, -5.f, -6.f, -7.f, -8.f, -8.f, -8.f, -8.f },
+    { -2.f, -3.f, -4.f, -5.f, -6.f, -7.f, -8.f, -8.f, -8.f, -8.f },
+};
+
+static void drawMap(Drawing& dwg)
+{
+    struct {
+        float first;
+        float step;
+    } 
+    nn = { -((float)ngmap) / 2.f, 1.f },
+    mm = { -((float)mgmap) / 2.f, 1.f };
+
+    dwg.SetColor(Drawing::WHITE);
+    for(size_t i = 0; i < ngmap - 1; ++i) {
+        for(size_t j = 0; j < mgmap - 1; ++j) {
+            dwg.MoveTo(Point3D(nn.first + i * nn.step, gmap[i][j], mm.first + j * mm.step));
+            dwg.LineTo(Point3D(nn.first + i * nn.step, gmap[i][j + 1], mm.first + (j + 1) * mm.step));
+            dwg.LineTo(Point3D(nn.first + (i + 1) * nn.step, gmap[i + 1][j + 1], mm.first + (j + 1) * mm.step));
+            dwg.LineTo(Point3D(nn.first + (i + 1) * nn.step, gmap[i + 1][j], mm.first + j * mm.step));
+            dwg.LineTo(Point3D(nn.first + i * nn.step, gmap[i][j], mm.first + j * mm.step));
+        }
+    }
+}
 
 static void drawScene(Drawing& dwg)
 {
@@ -133,6 +176,16 @@ static void drawScene(Drawing& dwg)
     dwg.MoveTo(Point3D(-10, 1, -5));
     dwg.SetTexture(-1);
     dwg.SpriteQuad(1, 2);
+
+    drawMap(dwg);
+
+    if(mvmntType == GRAVITY) {
+        dwg.SetRotations(0, 0, 0);
+        dwg.SetColor(Drawing::LIME);
+        Point3D p(-ppos.x, ppos.y - 1.f, -ppos.z);
+        dwg.MoveTo(p);
+        dwg.Quad(0.05, 0.05);
+    }
 }
 
 static void onmousedown(int x, int y, int btn)
@@ -157,19 +210,82 @@ static void onmousemove(int dx, int dy)
     if(rx < -90.f) rx = -90.f;
 }
 
+static bool computeZ()
+{
+    float x = -ppos.z;
+    float y = -ppos.x;
+    if(x == (float)(int)x) x += 1.e-5f;
+    if(y == (float)(int)y) y += 1.e-5f;
+    struct {
+        int x1, x2;
+        float w1, w2;
+    }
+    X = {
+        (int)floorf(x) + 5, (int)ceilf(x) + 5,
+        x - floorf(x), ceilf(x) - x
+    },
+    Y = {
+        (int)floorf(y) + 5, (int)ceilf(y) + 5,
+        y - floorf(y), ceilf(y) - y
+    };
+
+    if(X.x1 < 0 || X.x2 > 9 || Y.x1 < 0 || Y.x2 > 9) return false;
+
+#define OP(A, B) ((1.f/A + 1.f/B) / 2.f)
+    float z =
+          gmap[Y.x1][X.x1] * OP(Y.w1, X.w1)
+        + gmap[Y.x1][X.x2] * OP(Y.w1, X.w2)
+        + gmap[Y.x2][X.x2] * OP(Y.w2, X.w2)
+        + gmap[Y.x2][X.x1] * OP(Y.w2, X.w1);
+    z /= 
+          OP(X.w1, Y.w1)
+        + OP(X.w2, Y.w1)
+        + OP(X.w2, Y.w2)
+        + OP(X.w1, Y.w2);
+#undef OP
+
+    ppos.y = z + 2.f;
+
+    printf(" >> %f %f %f %f\n", gmap[Y.x1][X.x1], gmap[Y.x1][X.x2], gmap[Y.x2][X.x2], gmap[Y.x2][X.x1]);
+    printf("%d %d X %d %d\n", X.x1, X.x2, Y.x1, Y.x2);
+    printf("%f %f | %f %f\n", X.w1, X.w2, Y.w1, Y.w2);
+    printf("%f %f %f\n", ppos.x, ppos.z, ppos.y);
+
+    return true;
+}
+
 static void updateScene()
 {
 #define ACTUAL_FRAMES_PER_ANIMATION_FRAME 30
     static size_t frameCounter = 0;
 
+
     if(moving || moving2) {
-        Point3D dir(dlta2, 0, dlta);
-        dir = Drawing::UtilityHelpers::normalizeVector(dir);
-        dir.x /= 10.f;
-        dir.y /= 10.f;
-        dir.z /= 10.f;
-        dir = Drawing::UtilityHelpers::RotateDeltaVector(dir, -ry, -rx);
-        ppos = Drawing::UtilityHelpers::Translate(ppos, dir);
+        switch(mvmntType) {
+            case GRAVITY: {
+                Point3D dir(dlta2, 0, dlta);
+                dir = Drawing::UtilityHelpers::normalizeVector(dir);
+                dir.x /= 10.f;
+                dir.y /= 10.f;
+                dir.z /= 10.f;
+                dir = Drawing::UtilityHelpers::RotateDeltaVector(dir, -ry, 0);
+                Point3D oldPpos = ppos;
+                ppos = Drawing::UtilityHelpers::Translate(ppos, dir);
+                if(!computeZ())
+                {
+                    ppos = oldPpos;
+                }
+                break; }
+            case FLY: {
+                Point3D dir(dlta2, 0, dlta);
+                dir = Drawing::UtilityHelpers::normalizeVector(dir);
+                dir.x /= 10.f;
+                dir.y /= 10.f;
+                dir.z /= 10.f;
+                dir = Drawing::UtilityHelpers::RotateDeltaVector(dir, -ry, -rx);
+                ppos = Drawing::UtilityHelpers::Translate(ppos, dir);
+                break; }
+        }
     }
 
     jx += 5;
@@ -193,6 +309,21 @@ static void onkeyup(char key)
     case 's':
         moving = false;
         dlta = 0.f;
+        break;
+    case 'm':
+        if(mvmntType == GRAVITY) {
+            mvmntType = FLY;
+            break;
+        }
+        if(mvmntType == FLY &&
+                ppos.x >= -((float)mgmap)/2.f &&
+                ppos.x <= ((float)mgmap)/2.f &&
+                ppos.z >= -((float)ngmap)/2.f &&
+                ppos.z <= ((float)ngmap)/2.f)
+        {
+            mvmntType = GRAVITY;
+            computeZ();
+        }
         break;
     }
 }
