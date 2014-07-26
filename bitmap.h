@@ -21,6 +21,7 @@
 #ifndef BITMAP_H
 #define BITMAP_H
 
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <string>
