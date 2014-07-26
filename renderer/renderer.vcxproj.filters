@@ -29,9 +29,6 @@
     <ClInclude Include="..\drawing.hxx">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\main.hxx">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\bitmap.h">
       <Filter>Header Files</Filter>
     </ClInclude>

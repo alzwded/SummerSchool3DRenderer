@@ -97,7 +97,6 @@ COPY $(SolutionDir)..\sample.bmp $(OutDir)</Command>
     <ClInclude Include="..\bitmap.h" />
     <ClInclude Include="..\core.hxx" />
     <ClInclude Include="..\drawing.hxx" />
-    <ClInclude Include="..\main.hxx" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\sample.bmp">
