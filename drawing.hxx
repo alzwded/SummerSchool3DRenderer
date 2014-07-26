@@ -61,6 +61,8 @@ public:
             void (*update)(),
             void (*draw)(Drawing&));
 
+    static void SetWindowSize(int w, int h);
+
     // -1 to disable chroma key
     static int LoadBitmapTexture(std::string const& path, int chromaKey = -1 /*0BGR*/);
 

@@ -25,7 +25,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <cstdlib>
 #include <cmath>
-#include <cstdio>
 #include <iostream>
 #include "core.hxx"
 #include "drawing.hxx"
@@ -246,11 +245,6 @@ static bool computeZ()
 
     ppos.y = z + 2.f;
 
-    printf(" >> %f %f %f %f\n", gmap[Y.x1][X.x1], gmap[Y.x1][X.x2], gmap[Y.x2][X.x2], gmap[Y.x2][X.x1]);
-    printf("%d %d X %d %d\n", X.x1, X.x2, Y.x1, Y.x2);
-    printf("%f %f | %f %f\n", X.w1, X.w2, Y.w1, Y.w2);
-    printf("%f %f %f\n", ppos.x, ppos.z, ppos.y);
-
     return true;
 }
 
@@ -352,6 +346,7 @@ static void onkeydown(char key)
 int main(int argc, char* argv[])
 {
     Drawing::Init(&argc, argv);
+    Drawing::SetWindowSize(728, 500);
     Drawing::SetOnMouseDown(onmousedown);
     Drawing::SetOnMouseUp(onmouseup);
     Drawing::SetOnMouseMove(onmousemove);

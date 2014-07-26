@@ -690,3 +690,8 @@ int Drawing::LoadBitmapTexture(std::string const& path, int chromaKey)
     textures_.push_back(tex);
     return textures_.size() - 1;
 }
+
+void Drawing::SetWindowSize(int w, int h)
+{
+    glutReshapeWindow(w, h);
+}
