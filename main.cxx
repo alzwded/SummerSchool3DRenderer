@@ -76,6 +76,12 @@ static void drawMap(Drawing& dwg)
             dwg.LineTo(Point3D(nn.first + (i + 1) * nn.step, gmap[i + 1][j + 1], mm.first + (j + 1) * mm.step));
             dwg.LineTo(Point3D(nn.first + (i + 1) * nn.step, gmap[i + 1][j], mm.first + j * mm.step));
             dwg.LineTo(Point3D(nn.first + i * nn.step, gmap[i][j], mm.first + j * mm.step));
+            dwg.SetTexture(0);
+            dwg.SillyQuad(
+                Point3D(nn.first + i * nn.step, gmap[i][j], mm.first + j * mm.step),
+                Point3D(nn.first + i * nn.step, gmap[i][j + 1], mm.first + (j + 1) * mm.step),
+                Point3D(nn.first + (i + 1) * nn.step, gmap[i + 1][j + 1], mm.first + (j + 1) * mm.step),
+                Point3D(nn.first + (i + 1) * nn.step, gmap[i + 1][j], mm.first + j * mm.step));
         }
     }
 }

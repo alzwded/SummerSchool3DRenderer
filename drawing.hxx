@@ -109,6 +109,7 @@ public:
     void SetTextureScale(float = 0.f, float = 0.f);
     void TextureQuad(float w, float h);
     void SpriteQuad(float w, float h);
+    void SillyQuad(Point3D p1, Point3D p2, Point3D p3, Point3D p4);
 
     void MoveTo(Point2D);
     void LineTo(Point2D);

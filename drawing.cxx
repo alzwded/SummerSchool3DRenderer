@@ -504,6 +504,88 @@ void Drawing::SpriteQuad(float w, float h)
     glPopMatrix();
 }
 
+void Drawing::SillyQuad(Point3D p1, Point3D p2, Point3D p3, Point3D p4)
+{
+    if(tex_ < 0) {
+        return ;//Quad(w, h);
+    }
+
+    glPushMatrix();
+    glLineWidth(2);
+
+    glAlphaFunc(GL_GREATER, 0.5);
+    glEnable(GL_ALPHA_TEST);
+
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);//GL_DECAL);
+    glBindTexture(GL_TEXTURE_2D, textures_[tex_]);    
+
+    Point3D g(
+            (p1.x + p2.x + p3.x + p4.x) / 4.f,
+            (p1.y + p2.y + p3.y + p4.y) / 4.f,
+            (p1.z + p2.z + p3.z + p4.z) / 4.f);
+
+    glBegin(GL_TRIANGLES); {
+        float tw = 1.0, th = 1.0;
+        float gw = 0.5, gh = 0.5;
+        //if(texScale_.x > 0.f) {
+        //    tw = w / texScale_.x;
+        //}
+        //if(texScale_.y >0.f) {
+        //    th = h / texScale_.y;
+        //}
+        glTexCoord2f(0.0, 0.0); glVertex3f(p1.x, p1.y, -p1.z);
+        glTexCoord2f(0.0, tw);  glVertex3f(p2.x, p2.y, -p2.z);
+        glTexCoord2f(gh, gw);   glVertex3f(g.x, g.y, -g.z);
+
+        glTexCoord2f(0.0, tw);  glVertex3f(p2.x, p2.y, -p2.z);
+        glTexCoord2f(th, tw);   glVertex3f(p3.x, p3.y, -p3.z);
+        glTexCoord2f(gh, gw);   glVertex3f(g.x, g.y, -g.z);
+
+        glTexCoord2f(th, tw);   glVertex3f(p3.x, p3.y, -p3.z);
+        glTexCoord2f(th, 0.0);  glVertex3f(p4.x, p4.y, -p4.z);
+        glTexCoord2f(gh, gw);   glVertex3f(g.x, g.y, -g.z);
+
+        glTexCoord2f(th, 0.0);  glVertex3f(p4.x, p4.y, -p4.z);
+        glTexCoord2f(0.0, 0.0); glVertex3f(p1.x, p1.y, -p1.z);
+        glTexCoord2f(gh, gw);   glVertex3f(g.x, g.y, -g.z);
+
+        //glTexCoord2f(0.0, 0.0); glVertex3f(p1.x, p1.y, -p1.z);
+        //glTexCoord2f(0.0, tw); glVertex3f(p2.x, p2.y, -p2.z);
+        //glTexCoord2f(th, tw); glVertex3f(p3.x, p3.y, -p3.z);
+        //glTexCoord2f(th, 0.0); glVertex3f(p4.x, p4.y, -p4.z);
+
+        glTexCoord2f(0.0, tw);  glVertex3f(p2.x, p2.y, -p2.z);
+        glTexCoord2f(0.0, 0.0); glVertex3f(p1.x, p1.y, -p1.z);
+        glTexCoord2f(gh, gw);   glVertex3f(g.x, g.y, -g.z);
+
+        glTexCoord2f(th, tw);   glVertex3f(p3.x, p3.y, -p3.z);
+        glTexCoord2f(0.0, tw);  glVertex3f(p2.x, p2.y, -p2.z);
+        glTexCoord2f(gh, gw);   glVertex3f(g.x, g.y, -g.z);
+
+        glTexCoord2f(th, 0.0);  glVertex3f(p4.x, p4.y, -p4.z);
+        glTexCoord2f(th, tw);   glVertex3f(p3.x, p3.y, -p3.z);
+        glTexCoord2f(gh, gw);   glVertex3f(g.x, g.y, -g.z);
+
+        glTexCoord2f(0.0, 0.0); glVertex3f(p1.x, p1.y, -p1.z);
+        glTexCoord2f(th, 0.0);  glVertex3f(p4.x, p4.y, -p4.z);
+        glTexCoord2f(gh, gw);   glVertex3f(g.x, g.y, -g.z);
+    } glEnd();
+
+    //glBegin(GL_QUADS); {
+    //    float tw = 1.0, th = 1.0;
+    //    glTexCoord2f(0.0, 0.0); glVertex3f(p1.x, p1.y, -p1.z);
+    //    glTexCoord2f(th, 0.0); glVertex3f(p4.x, p4.y, -p4.z);
+    //    glTexCoord2f(th, tw); glVertex3f(p3.x, p3.y, -p3.z);
+    //    glTexCoord2f(0.0, tw); glVertex3f(p2.x, p2.y, -p2.z);
+    //} glEnd();
+    glFlush();
+    
+    glDisable(GL_TEXTURE_2D);
+
+    glPopMatrix();
+}
+
 void Drawing::TextureQuad(float w, float h)
 {
     if(tex_ < 0) {
