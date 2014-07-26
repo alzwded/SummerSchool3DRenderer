@@ -222,15 +222,15 @@ static bool computeZ()
         float w1, w2;
     }
     X = {
-        (int)floorf(x) + 5, (int)ceilf(x) + 5,
+        (int)floorf(x) + mgmap/2, (int)ceilf(x) + mgmap/2,
         x - floorf(x), ceilf(x) - x
     },
     Y = {
-        (int)floorf(y) + 5, (int)ceilf(y) + 5,
+        (int)floorf(y) + ngmap/2, (int)ceilf(y) + ngmap/2,
         y - floorf(y), ceilf(y) - y
     };
 
-    if(X.x1 < 0 || X.x2 > 9 || Y.x1 < 0 || Y.x2 > 9) return false;
+    if(X.x1 < 0 || X.x2 >= mgmap || Y.x1 < 0 || Y.x2 >= ngmap) return false;
 
 #define OP(A, B) ((1.f/A + 1.f/B) / 2.f)
     float z =
