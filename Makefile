@@ -1,5 +1,6 @@
 CPP = g++
-CFLAGS = -g -c
+#CFLAGS = -g -c
+CFLAGS = -Ofast -c
 LD = g++
 LDFLAGS = -lglut -lGLU -lGL -lm
 
