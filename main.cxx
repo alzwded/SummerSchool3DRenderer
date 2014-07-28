@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drawing.hxx"
 
 static bool moving = false, moving2 = false;
-static float dlta = 0.1, dlta2 = 0.f;
+static float dlta = 0.1f, dlta2 = 0.f;
 
 static float jx = 0, jy = 0, jz = 0;
 
@@ -115,16 +115,16 @@ static void drawScene(Drawing& dwg)
     dwg.MoveTo(Point3D(0, 0, 0));
     dwg.SetColor(Drawing::SEAGREEN);
     dwg.SetRotations(90, 0, 0);
-    dwg.Quad(0.7, 0.7);
+    dwg.Quad(0.7f, 0.7f);
     dwg.SetColor(Drawing::LIME);
-    dwg.WireQuad(0.7, 0.7);
+    dwg.WireQuad(0.7f, 0.7f);
     
     dwg.MoveTo(Point3D(0, 0, 0));
     dwg.SetColor(Drawing::SEAYELLOW);
     dwg.SetRotations(0, 90, 0);
-    dwg.Quad(0.4, 0.4);
+    dwg.Quad(0.4f, 0.4f);
     dwg.SetColor(Drawing::YELLOW);
-    dwg.WireQuad(0.4, 0.4);
+    dwg.WireQuad(0.4f, 0.4f);
 
     dwg.MoveTo(Point3D(0, 0, 2));
     dwg.SetTexture(1);
@@ -185,7 +185,7 @@ static void drawScene(Drawing& dwg)
         dwg.SetColor(Drawing::LIME);
         Point3D p(-ppos.x, ppos.y - 1.f, -ppos.z);
         dwg.MoveTo(p);
-        dwg.Quad(0.05, 0.05);
+        dwg.Quad(0.05f, 0.05f);
     }
 }
 
@@ -205,8 +205,8 @@ static void onmouseup(int x, int y, int btn)
 
 static void onmousemove(int dx, int dy)
 {
-    ry += dx * 0.1;
-    rx += dy * 0.1;
+    ry += dx * 0.1f;
+    rx += dy * 0.1f;
     if(rx > 90.f) rx = 90.f;
     if(rx < -90.f) rx = -90.f;
 }
@@ -329,19 +329,19 @@ static void onkeydown(char key)
     switch(key) {
     case 'w':
         moving = true;
-        dlta = 0.1;
+        dlta = 0.1f;
         break;
     case 's':
         moving = true;
-        dlta = -0.1;
+        dlta = -0.1f;
         break;
     case 'a':
         moving2 = true;
-        dlta2 = -0.1;
+        dlta2 = -0.1f;
         break;
     case 'd':
         moving2 = true;
-        dlta2 = 0.1;
+        dlta2 = 0.1f;
     }
 }
 

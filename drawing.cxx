@@ -28,8 +28,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <GL/freeglut.h>
 #include <cmath>
 
-#define COS(U) cosf( U / 180.f * 3.14159 )
-#define SIN(U) sinf( U / 180.f * 3.14159 )
+#define COS(U) cosf( (float)(U / 180.f * 3.14159 ))
+#define SIN(U) sinf( (float)(U / 180.f * 3.14159 ))
 #define SETFUCKINGCOLOR(R, G, B) glColor3f( (R) / 255.f , (G) / 255.f , (B) / 255.f )
 
 static int window;
@@ -375,7 +375,7 @@ void Drawing::Text(std::string const& s)
     glLineWidth(0.5);
     glTranslatef(currentPoint_.x, currentPoint_.y, 0.f);
 	glScalef(textScale_, -textScale_, 0.0f);
-	for(int i = 0; i < s.size(); ++i) {
+	for(size_t i = 0; i < s.size(); ++i) {
 		glutStrokeCharacter(GLUT_STROKE_MONO_ROMAN, s[i]);
 	}
     glPopMatrix();
@@ -401,7 +401,7 @@ void Drawing::WireSphere(float r)
     glTranslatef(currentPoint_.x, currentPoint_.y, -currentPoint_.z);
     glRotatef(r_.x, 1, 0, 0);
     glRotatef(r_.y, 0, 1, 0);
-    glLineWidth(0.2);
+    glLineWidth(0.2f);
     glutWireSphere(r, 10, 10);
     glPopMatrix();
 }
@@ -640,7 +640,8 @@ void Drawing::MoveCamera(Point3D O, float rx, float ry)
 
 void Drawing::SetTexture(int i)
 {
-    if(i > textures_.size()) {
+    if(i < 0) tex_ = -1;
+    if((size_t)i > textures_.size()) {
         tex_ = -1;
     } else {
         tex_ = i;
