@@ -66,6 +66,8 @@ public:
     static void Init(int* argc, char* argv[]);
     /** Enter the engine's main loop. Does not usually return,
       * so you should call this last.
+      * the update callback is called before the draw callback
+      * every 17ms or so.
       */
     static void Loop(
             void (*update)(),
